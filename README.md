@@ -18,4 +18,4 @@ python:3.7.1-alpine3.8
 `docker run -it --rm -v $(pwd):/workspace python:3.7.1-alpine3.8-git`
 
 ## example run it
-`docker run -it --rm -p 8023:8888 pandorasnox/deepo:pytorch-py36-jupyter-cpu jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token= --notebook-dir='/root'`
+`docker run -it --rm -p 8023:8888 -v $(pwd):/root/hostbooks pandorasnox/deepo:pytorch-py36-jupyter-cpu jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token= --notebook-dir='/root'`
