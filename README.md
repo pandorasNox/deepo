@@ -3,7 +3,7 @@
 custom builds for the deepo docker env's
 
 
-## workdlow
+## workflow
 
 before we can run the build of the deepo custom image we need to generate the dockerfile it.
 
@@ -24,17 +24,33 @@ docker build -t deepo-dockerfile-generator ./container-images/deepo-dockerfile-g
 docker run -it --rm -v $(pwd):/workspace deepo-dockerfile-generator -c "./scripts/pytorch-img.sh"
 ```
 
-### 3. build custom deepo image
+### 3. build custom deepo image (locally)
 ```
 # custom pytorch jupyter image
-docker build -t pandorasnox/deepo:pytorch-py36-jupyter-cpu ./container-images/generated/pytorch-py36-jupyter-cpu
+docker build -t locally/deepo:pytorch-cpu ./container-images/generated/pytorch-py36-jupyter-cpu
 ```
 
 ### 4. run custom deepo image
 ```
-docker run -d -t --rm --name custom_deepo_example -p 63824:8888 -v $(PWD):/workspace -w "/workspace" pandorasnox/deepo:pytorch-py36-jupyter-cpu 2> /dev/null || true
+# locally image
+docker run -d -t --rm --name custom_deepo_example -p 63824:8888 -v $(PWD):/workspace -w "/workspace" locally/deepo:pytorch-cpu 2> /dev/null || true
 ```
 
+```
+# dockerhub image
+docker run -d -t --rm --name custom_deepo_example -p 63824:8888 -v $(PWD):/workspace -w "/workspace" pandorasnox/deepo:pytorch-cpu-0.1.1 2> /dev/null || true
+```
+
+```
+# run jupyter notebook
+docker exec -it custom_deepo_example jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token= --notebook-dir='/workspace'
+```
+
+### 5. hub.docker build
+```
+git tag -a "0.1.1" -m ""
+git push --tags
+```
 
 ## todo
 - python generator/generate.py ../docker/Dockerfile.tensorflow-py36-cpu tensorflow=1.13.1 python==3.6
@@ -44,4 +60,5 @@ docker run -d -t --rm --name custom_deepo_example -p 63824:8888 -v $(PWD):/works
 - jupyter=5.7.9
 
 - tensorflow=2.1.1
+
 
