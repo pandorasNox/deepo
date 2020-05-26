@@ -1,21 +1,47 @@
 # deepo
+
 custom builds for the deepo docker env's
 
-python:3.7.1-alpine3.8
 
-`docker run -it --rm python:3.7.1-alpine3.8 sh`
+## workdlow
 
-`docker build -t python:3.7.1-alpine3.8-git ./docker/alpine-python3-7-1-git/`
+before we can run the build of the deepo custom image we need to generate the dockerfile it.
 
-`docker run -it --rm python:3.7.1-alpine3.8-git sh`
+for that also use docker and a docker generate-deepo-dockerfile image, which we also have to build
 
-`docker run -it --rm -v $(pwd):/workspace python:3.7.1-alpine3.8-git sh`
+### 1. build deepo Dockerfile generator
 
-`docker run -it --rm -v $(pwd):/workspace python:3.7.1-alpine3.8-git`
+#### manually
+```
+# build generate image
+docker build -t deepo-dockerfile-generator ./container-images/deepo-dockerfile-generator
+```
 
-## setup
-`docker build -t python:3.7.1-alpine3.8-git ./docker/alpine-python3-7-1-git/`
-`docker run -it --rm -v $(pwd):/workspace python:3.7.1-alpine3.8-git`
+### 2. generate custom deepo dockerfile
 
-## example run it
-`docker run -it --rm -p 8023:8888 -v $(pwd):/root/hostbooks pandorasnox/deepo:pytorch-py36-jupyter-cpu jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token= --notebook-dir='/root'`
+#### manually
+```
+docker run -it --rm -v $(pwd):/workspace deepo-dockerfile-generator -c "./scripts/pytorch-img.sh"
+```
+
+### 3. build custom deepo image
+```
+# custom pytorch jupyter image
+docker build -t pandorasnox/deepo:pytorch-py36-jupyter-cpu ./container-images/generated/pytorch-py36-jupyter-cpu
+```
+
+### 4. run custom deepo image
+```
+docker run -d -t --rm --name custom_deepo_example -p 63824:8888 -v $(PWD):/workspace -w "/workspace" pandorasnox/deepo:pytorch-py36-jupyter-cpu 2> /dev/null || true
+```
+
+
+## todo
+- python generator/generate.py ../docker/Dockerfile.tensorflow-py36-cpu tensorflow=1.13.1 python==3.6
+
+- pytorch=1.5.0
+
+- jupyter=5.7.9
+
+- tensorflow=2.1.1
+

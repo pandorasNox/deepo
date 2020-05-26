@@ -6,7 +6,8 @@
 # pytorch       latest (pip)
 # ==================================================================
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
+ENV LANG C.UTF-8
 RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     PIP_INSTALL="python -m pip --no-cache-dir install --upgrade" && \
     GIT_CLONE="git clone --depth 10" && \
@@ -23,12 +24,21 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
 
     DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         build-essential \
+        apt-utils \
         ca-certificates \
-        cmake \
         wget \
         git \
         vim \
+        libssl-dev \
+        curl \
+        unzip \
+        unrar \
         && \
+
+    $GIT_CLONE https://github.com/Kitware/CMake ~/cmake && \
+    cd ~/cmake && \
+    ./bootstrap && \
+    make -j"$(nproc)" install && \
 
 # ==================================================================
 # python
@@ -42,6 +52,7 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         python3.6 \
         python3.6-dev \
+        python3-distutils-extra \
         && \
     wget -O ~/get-pip.py \
         https://bootstrap.pypa.io/get-pip.py && \
@@ -56,9 +67,11 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         scipy \
         pandas \
         cloudpickle \
-        scikit-learn==0.20.0 \
+        scikit-image>=0.14.2 \
+        scikit-learn \
         matplotlib \
         Cython \
+        tqdm \
         && \
 
 # ==================================================================
@@ -74,11 +87,16 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
 # ------------------------------------------------------------------
 
     $PIP_INSTALL \
-        torch_nightly -f \
-        https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html \
+        future \
+        numpy \
+        protobuf \
+        enum34 \
+        pyyaml \
+        typing \
         && \
     $PIP_INSTALL \
-        torchvision_nightly \
+        --pre torch torchvision -f \
+        https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html \
         && \
 
 # ==================================================================
